@@ -7,6 +7,7 @@ class Auth extends CI_Controller
 	{
 		parent::__construct();
 		$this->load->library("form_validation");
+		$this->load->model('model_auth');
 	}
 
 	public function index()
@@ -19,9 +20,40 @@ class Auth extends CI_Controller
 
 	public function login()
 	{
-		$this->load->view("auth_partial/header");
-		$this->load->view("auth/login");
-		$this->load->view("auth_partial/footer");
+
+		$this->form_validation->set_rules('email', 'Email', 'required|trim|valid_email');
+		$this->form_validation->set_rules('password', 'Password', 'required|trim|min_length[3]',			[
+			'min_length' => "password too short"
+		]);
+
+		if ($this->form_validation->run() == false) {
+			$this->load->view("auth_partial/header");
+			$this->load->view("auth/login");
+			$this->load->view("auth_partial/footer");
+		} else {
+			$email = $this->input->post('email');
+			$password = $this->input->post('password');
+			$where = array(
+				'email' => $email,
+				// 'password' => password_hash($password, PASSWORD_DEFAULT)
+			);
+			$login = $this->model_auth->login_check("users", $where);
+			// var_dump($login);
+			if ($login->num_rows() > 0) {
+				$get_user_data = $login->row();
+				if (password_verify($password, $get_user_data->password)) {
+					$data_session = array(
+						'name' => $get_user_data->name,
+						'email' => $get_user_data->email,
+						'role' => $get_user_data->role,
+					);
+					$this->session->set_userdata($data_session);
+					redirect(base_url("dashboard"));
+				} else {
+					redirect(base_url('auth/login'));
+				}
+			}
+		}
 	}
 
 	public function registration()

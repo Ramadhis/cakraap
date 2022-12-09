@@ -6,7 +6,7 @@ class Dashboard extends CI_Controller
 
 	public function index()
 	{
-		echo "ini halaman dashboard";
+		$this->load->view('dashboard');
 	}
 
 	public function tes()
