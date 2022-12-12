@@ -31,8 +31,8 @@ class Auth extends CI_Controller
 			$this->load->view("auth/login");
 			$this->load->view("auth_partial/footer");
 		} else {
-			$email = $this->input->post('email');
-			$password = $this->input->post('password');
+			$email = htmlspecialchars($this->input->post('email'));
+			$password = htmlspecialchars($this->input->post('password'));
 			$where = array(
 				'email' => $email,
 				// 'password' => password_hash($password, PASSWORD_DEFAULT)
@@ -80,8 +80,8 @@ class Auth extends CI_Controller
 			$this->load->view("auth_partial/footer");
 		} else {
 			$data = [
-				'name' => $this->input->post("name"),
-				'email' => $this->input->post("email"),
+				'name' => htmlspecialchars($this->input->post("name")),
+				'email' => htmlspecialchars($this->input->post("email")),
 				'password' => password_hash($this->input->post("password"), PASSWORD_DEFAULT),
 				'role' => '3',
 				'is_active' => '1',
@@ -94,5 +94,11 @@ class Auth extends CI_Controller
 			</div>');
 			redirect('auth/login');
 		}
+	}
+
+	function logout()
+	{
+		$this->session->sess_destroy();
+		redirect(base_url('auth/login'));
 	}
 }
