@@ -12,9 +12,7 @@ class Auth extends CI_Controller
 
 	public function index()
 	{
-		if (check_status_login() == true) {
-			redirect('dashboard/index');
-		}
+		check_status_login();
 		$data['title'] = "Login Page";
 		$this->load->view("auth_partial/header", $data);
 		$this->load->view("auth/login");
@@ -23,13 +21,20 @@ class Auth extends CI_Controller
 
 	public function login()
 	{
-		if (check_status_login() == true) {
+		/* base_url redirect after login success */
+		$redirect_to = "dashboard";
+
+		/* disable user back to login page after success */
+		if ($this->session->userdata('logged_in') == true) {
 			redirect('dashboard/index');
 		}
+
+		/*  validation */
 		$this->form_validation->set_rules('email', 'Email', 'required|trim|valid_email');
 		$this->form_validation->set_rules('password', 'Password', 'required|trim|min_length[3]',			[
 			'min_length' => "password too short"
 		]);
+		/* end validation */
 
 		if ($this->form_validation->run() == false) {
 			$this->load->view("auth_partial/header");
@@ -43,7 +48,7 @@ class Auth extends CI_Controller
 				// 'password' => password_hash($password, PASSWORD_DEFAULT)
 			);
 			$login = $this->model_auth->login_check("users", $where);
-			// var_dump($login);
+
 			if ($login->num_rows() > 0) {
 				$get_user_data = $login->row();
 				if (password_verify($password, $get_user_data->password)) {
@@ -54,7 +59,7 @@ class Auth extends CI_Controller
 						'logged_in' => TRUE
 					);
 					$this->session->set_userdata($data_session);
-					redirect(base_url("dashboard"));
+					redirect(base_url($redirect_to));
 				} else {
 					redirect(base_url('auth/login'));
 				}
@@ -64,10 +69,11 @@ class Auth extends CI_Controller
 
 	public function registration()
 	{
-		if (check_status_login() == true) {
+		if ($this->session->userdata('logged_in') == true) {
 			redirect('dashboard/index');
 		}
 
+		/* validation */
 		$this->form_validation->set_rules('name', 'Name', 'required|trim');
 		$this->form_validation->set_rules('email', 'Email', 'required|trim|valid_email|is_unique[users.email]', [
 			'is_unique' => "this email has already registered!"
@@ -83,6 +89,7 @@ class Auth extends CI_Controller
 				'matches' => "password dont match! re enter password",
 			]
 		);
+		/* end validation */
 
 		if ($this->form_validation->run() == false) {
 			$this->load->view("auth_partial/header");

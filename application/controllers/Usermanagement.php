@@ -7,9 +7,7 @@ class Usermanagement extends CI_Controller
   {
     parent::__construct();
     // for check if user login
-    if (check_status_login() == false) {
-      redirect('auth/login');
-    }
+    check_status_login();
   }
   public function index()
   {

@@ -7,18 +7,12 @@ class Dashboard extends CI_Controller
 	{
 		parent::__construct();
 		// for check if user login
-		if (check_status_login() == false) {
-			redirect('auth/login');
-		}
+		check_status_login();
 	}
 
 	public function index()
 	{
-		$this->load->view('dashboard_partial/header');
-		$this->load->view('dashboard_partial/sidebar');
-		$this->load->view('dashboard_partial/topbar');
-		$this->load->view('dashboard'); //content
-		$this->load->view('dashboard_partial/modal');
-		$this->load->view('dashboard_partial/footer');
+		//template setting in helpers/_helpers
+		template_dashboard('dashboard');
 	}
 }
